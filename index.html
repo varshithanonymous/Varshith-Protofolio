@@ -2,10 +2,87 @@
 <html lang="en">
   <head>
     <title>Varshith Rallabandi</title>
+	<style>
+  #projects {
+    padding: 40px;
+  }
+
+  .project-buttons {
+    margin-bottom: 20px;
+  }
+
+  .project-buttons button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .project-buttons button:hover {
+    background-color: #444;
+  }
+
+  .project-item {
+    margin-bottom: 20px;
+  }
+
+  .project-item a {
+    display: inline-block;
+    margin-top: 5px;
+    color: #007bff;
+  }
+  .gallery-item img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.gallery-item img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+}
+#galleryCarousel {
+  max-width: 45%;
+  min-width: 300px;
+}
+
+#galleryCarousel img {
+  height: 380px;
+  object-fit: cover;
+  border-radius: 15px;
+  transition: transform 0.5s ease;
+}
+
+#galleryCarousel img:hover {
+  transform: scale(1.03);
+}
+
+.carousel-indicators li {
+  background-color: #ffc107;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+#achievements .card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+#achievements .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px rgba(255, 193, 7, 0.25);
+}
+
+
+</style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="css/bootstrap.min.css">
 <script src="js/bootstrap.min.js"></script>
+
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
 
@@ -39,6 +116,9 @@
 					<li class="nav-item"><a href="#about-section" class="nav-link"><span>About</span></a></li>
 					<li class="nav-item"><a href="#resume-section" class="nav-link"><span>Resume</span></a></li>
 					<li class="nav-item"><a href="#services-section" class="nav-link"><span>Services</span></a></li>
+          <li class="nav-item"><a href="#gallery" class="nav-link"><span>Gallery</span></a></li>
+          <li class="nav-item"><a href="#achievements" class="nav-link"><span>Achievements</span></a></li>
+
 					<li class="nav-item"><a href="#skills-section" class="nav-link"><span>Skills</span></a></li>
 					<li class="nav-item"><a href="#projects-section" class="nav-link"><span>Projects</span></a></li>
 					<li class="nav-item"><a href="#contact-section" class="nav-link"><span>Contact</span></a></li>
@@ -53,7 +133,7 @@
 				<div class="overlay"></div>
 				<div class="container">
 					<div class="row d-md-flex no-gutters slider-text align-items-end justify-content-end" data-scrollax-parent="true">
-						<div class="one-third js-fullheight order-md-last img" style="background-image:url(images/about.png);">
+						<div class="one-third js-fullheight order-md-last img" style="background-image:url(images/main.jpg);">
 							<div class="overlay"></div>
 						</div>
 						<div class="one-forth d-flex align-items-center ftco-animate" data-scrollax=" properties: { translateY: '70%' }">
@@ -97,7 +177,7 @@
 					</div>
 					<div class="counter-wrap ftco-animate d-flex mt-md-3">
 						<div class="text">
-							<p><a href="https://drive.google.com/file/d/1u36wQKV1WOIlobQo4ZYZ2RQCweGqNaCG/view?usp=sharing" class="btn btn-primary py-3 px-3">Download CV</a></p>
+							<p><a href="https://drive.google.com/file/d/1_qFPc1AvQYmOMyYjRYGZ9JDvEVhzSaQL/view?usp=sharing" class="btn btn-primary py-3 px-3">Download CV</a></p>
 						</div>
 					</div>
 				</div>
@@ -136,75 +216,276 @@
 			</div>
 			<div class="row justify-content-center mt-5">
 				<div class="col-md-6 text-center ftco-animate">
-					<p><a href="https://drive.google.com/file/d/1u36wQKV1WOIlobQo4ZYZ2RQCweGqNaCG/view?usp=sharing" class="btn btn-primary py-4 px-5">Download CV</a></p>
+					<p><a href="https://drive.google.com/file/d/1_qFPc1AvQYmOMyYjRYGZ9JDvEVhzSaQL/view?usp=sharing" class="btn btn-primary py-4 px-5">Download CV</a></p>
 				</div>
 			</div>
 		</div>
 	</section>
-<section class="ftco-section" id="projects-section">
+<section id="projects" class="py-5" style="background-color: #121212;">
   <div class="container">
-    <div class="row justify-content-center pb-5">
-      <div class="col-md-10 heading-section text-center ftco-animate">
-        <h1 class="big big-2">Projects</h1>
-        <h2 class="mb-4">My Projects</h2>
-        <p>Explore some of the projects I’ve developed, showcasing my skills in web development, AI, and software engineering.</p>
-      </div>
-    </div>
-    <div class="row">
-      <!-- GazeTracker -->
-      <div class="col-md-6 ftco-animate">
-        <div class="project-wrap p-4">
-          <h3>GazeTracker</h3>
-          <p>A real-time eye-gaze tracking system using OpenCV and Dlib that identifies user attention on screen, useful for UX studies and assistive technology.</p>
-          <p><strong>Tech Stack:</strong> Python, OpenCV, Dlib, NumPy</p>
-          
-		  <p><a href="https://github.com/varshithanonymous/GazeTracking" class="btn btn-primary" target="_blank">View on GitHub</a></p>
-          <p><a href="https://www.linkedin.com/posts/varshithrallabandi_ai-gazetracking-futuretech-activity-7307276911213166592-MUYV?utm_source=share&utm_medium=member_desktop&rcm=ACoAAETyomIB9Ydxh3VMUf2DlZ8TScZqez4uyhgg" class="btn btn-primary" target="_blank">View on Linkedin</a></p>
-		</div>
-      </div>
+    <h2 class="text-center text-white mb-5">Projects</h2>
 
-      <!-- BERT Q&A -->
-      <div class="col-md-6 ftco-animate">
-        <div class="project-wrap p-4">
-          <h3>BERT Q&A Model</h3>
-          <p>A question-answering system leveraging Hugging Face’s BERT model to retrieve accurate answers from custom context passages.</p>
-          <p><strong>Tech Stack:</strong> Python, Transformers (Hugging Face), Flask, HTML/CSS</p>
-          <p><a href="https://github.com/varshithanonymous/Q-n-A" class="btn btn-primary" target="_blank">View on GitHub</a></p>
-        </div>
-      </div>
-
-      <!-- Resume Builder -->
-      <div class="col-md-6 ftco-animate mt-4">
-        <div class="project-wrap p-4">
-          <h3>Resume Builder</h3>
-          <p>A full-stack resume generator where users input their data and download a styled PDF resume.</p>
-          <p><strong>Tech Stack:</strong> PHP, MySQL, Bootstrap, FPDF</p>
-          <p><a href="https://github.com/varshithanonymous/resume-builder" class="btn btn-primary" target="_blank">View on GitHub</a></p>
-		  <p><a href="https://www.linkedin.com/posts/varshithrallabandi_resumebuilder-automation-php-activity-7310628162478977024-6p01?utm_source=share&utm_medium=member_desktop&rcm=ACoAAETyomIB9Ydxh3VMUf2DlZ8TScZqez4uyhg" class="btn btn-primary" target="_blank">View on Linkedin</a></p>
-        </div>
-      </div>
-
-      <!-- Workout Tracker -->
-      <div class="col-md-6 ftco-animate mt-4">
-        <div class="project-wrap p-4">
-          <h3>Workout Tracker</h3>
-          <p>A fitness tracking web app to log, view, and visualize workout progress over time.</p>
-          <p><strong>Tech Stack:</strong> Angular, Node.js, MongoDB, Chart.js</p>
-          <p><a href="https://github.com/varshithanonymous/workout-tracker" class="btn btn-primary" target="_blank">View on GitHub</a></p>
-        </div>
-      </div>
+    <!-- Category Buttons -->
+    <div class="text-center mb-4">
+      <button class="btn btn-outline-warning mx-2" onclick="showProjects('web')">Web Development</button>
+      <button class="btn btn-outline-warning mx-2" onclick="showProjects('ai')">AI & ML</button>
+      <button class="btn btn-outline-warning mx-2" onclick="showProjects('fullstack')">Full Stack</button>
+      <button class="btn btn-outline-warning mx-2" onclick="showProjects('research')">Research Work</button>
     </div>
 
-    <!-- View More Projects Button -->
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-6 text-center ftco-animate">
-        <p><a href="https://drive.google.com/file/d/1mODwSUDas8F_tN2f00Yh4B7KWSi6hYFk/view?usp=sharing" class="btn btn-outline-primary py-3 px-5" target="_blank">View More Projects</a></p>
+    <div class="row g-4" id="projects-container">
+
+      <!-- Web Projects -->
+      <div class="col-md-6 col-lg-4 project-card web-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">July 2025</h6>
+          <h5 class="card-title">Investor Pitch Insights Dashboard</h5>
+          <p class="text-muted flex-grow-1">A data-driven PowerBI dashboard built using Crunchbase APIs, enabling startups to visualize investment patterns and investor networks.</p>
+          <p><strong>Tech Stack:</strong> Python, PowerBI, DAX</p>
+        </div>
       </div>
+
+      <div class="col-md-6 col-lg-4 project-card web-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">June 2025</h6>
+          <h5 class="card-title">Hotel Management Web App</h5>
+          <p class="text-muted flex-grow-1">Web app for booking and managing hotel or restaurant tables, integrated with dashboard-based slot control and reservation logs.</p>
+          <p><strong>Tech Stack:</strong> JavaScript, Bootstrap</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card web-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">April 2025</h6>
+          <h5 class="card-title">Automated Resume Builder</h5>
+          <p class="text-muted flex-grow-1">Web app that generates modern, downloadable resumes with customizable templates and clean Bootstrap UI.</p>
+          <p><strong>Tech Stack:</strong> PHP, FPDF, Bootstrap</p>
+        </div>
+      </div>
+
+      <!-- Full Stack -->
+      <div class="col-md-6 col-lg-4 project-card fullstack-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">June 2025</h6>
+          <h5 class="card-title">E-commerce Store</h5>
+          <p class="text-muted flex-grow-1">Full-fledged shopping platform featuring product catalogs, dynamic cart, and Stripe payment integration.</p>
+          <p><strong>Tech Stack:</strong> Angular, Tailwind CSS, Stripe, Prisma</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card fullstack-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">June 2025</h6>
+          <h5 class="card-title">DailyDevHub</h5>
+          <p class="text-muted flex-grow-1">A collaborative developer platform for blogs, dashboards, and project bookmarking with real-time updates.</p>
+          <p><strong>Tech Stack:</strong> Next.js, Tailwind CSS, GeminiAPI, MongoDB</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card fullstack-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">March 2025</h6>
+          <h5 class="card-title">College Review System</h5>
+          <p class="text-muted flex-grow-1">A verified university review platform with OTP-based registration, category-based reviews, and reply system.</p>
+          <p><strong>Tech Stack:</strong> PHP, Bootstrap, MySQL</p>
+        </div>
+      </div>
+
+      <!-- AI & ML -->
+      <div class="col-md-6 col-lg-4 project-card ai-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">July 2025</h6>
+          <h5 class="card-title">AI Vision Pro</h5>
+          <p class="text-muted flex-grow-1">An AI-powered vision health assistant detecting eye symptoms via images and simulating eyesight clarity tests.</p>
+          <p><strong>Tech Stack:</strong> Flask, Gemini API, HTML, CSS, JS</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card ai-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">May 2025</h6>
+          <h5 class="card-title">Uber Clone (Ride Booking System)</h5>
+          <p class="text-muted flex-grow-1">Real-time ride booking system with live driver tracking, fare calculation, and location-based requests.</p>
+          <p><strong>Tech Stack:</strong> Flask, MySQL, WebSockets, Google Maps API</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card ai-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">Feb 2025</h6>
+          <h5 class="card-title">GazeTracker</h5>
+          <p class="text-muted flex-grow-1">Real-time gaze tracking system for UX research and assistive technology applications.</p>
+          <p><strong>Tech Stack:</strong> Python, OpenCV, Dlib</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 project-card ai-card" style="display:none;">
+        <div class="card text-white bg-dark h-100 shadow rounded-3 p-4">
+          <h6 class="text-warning fw-bold mb-2">Jan 2025</h6>
+          <h5 class="card-title">BERT QsA Model</h5>
+          <p class="text-muted flex-grow-1">A natural language question-answering model using BERT that delivers contextual responses.</p>
+          <p><strong>Tech Stack:</strong> Python, Flask, Transformers</p>
+        </div>
+      </div>
+
+      <!-- Research Work -->
+      <section id="research" class="py-5" style="background-color: #121212;">
+  <div class="container">
+    <h2 class="text-center text-white mb-5">Research Work</h2>
+
+    <div class="row g-4 justify-content-center">
+
+      <!-- Research 1 -->
+      <div class="col-md-6 col-lg-5 d-flex align-items-stretch">
+        <div class="card text-white bg-dark shadow rounded-3 p-4 w-100" 
+             style="background-color: #1a1a1a; border: 1px solid rgba(255, 193, 7, 0.1);">
+          <h6 class="text-warning fw-bold mb-2">SRC 2025, Zayed University, Dubai</h6>
+          <h5 class="card-title">IoT-Based Smart Umbrella System for Outdoor Vehicle Protection using Machine Learning</h5>
+          <p class="text-muted flex-grow-1">
+            This research presents a compact and intelligent <strong>IoT-based Smart Umbrella System</strong> 
+            powered by an <strong>ESP-32 microcontroller</strong> for outdoor vehicle protection. 
+            Unlike traditional reactive or hydraulic systems, this design utilizes an integrated 
+            network of sensors (YL-83, VEML6030, and NEO-6M GPS) for dynamic weather analysis.
+          </p>
+          <p class="text-muted flex-grow-1">
+            A <strong>Decision Tree-based ML model</strong> predicts environmental triggers like rainfall 
+            or high UV radiation, minimizing false activations. The system automatically deploys a 
+            servo-driven umbrella and notifies users via an Android app, ensuring real-time 
+            response with optimal energy efficiency.
+          </p>
+          <p><strong>Tech Stack:</strong> ESP-32, IoT, Decision Tree, Android App, YL-83, VEML6030, GPS</p>
+        </div>
+      </div>
+
+      <!-- Research 2 -->
+      <div class="col-md-6 col-lg-5 d-flex align-items-stretch">
+        <div class="card text-white bg-dark shadow rounded-3 p-4 w-100"
+             style="background-color: #1a1a1a; border: 1px solid rgba(255, 193, 7, 0.1);">
+          <h6 class="text-warning fw-bold mb-2">SRC 2025, Zayed University, Dubai</h6>
+          <h5 class="card-title">Real-Time Vision-and-Voice-Based Navigation System using Deep Learning and LLMs</h5>
+          <p class="text-muted flex-grow-1">
+            This project integrates <strong>YOLOv10 object detection</strong> and <strong>LLM-based audio feedback</strong> 
+            to provide intelligent navigation assistance for both <strong>visually impaired users</strong> 
+            and <strong>low-visibility driving environments</strong>.
+          </p>
+          <p class="text-muted flex-grow-1">
+            It employs <strong>spatio-temporal motion tracking (MOG2)</strong> with sensor fusion using LiDAR and IMU data, 
+            generating real-time contextual voice prompts via <strong>Google TTS</strong> and <strong>eSpeak</strong>. 
+            The system runs on an <strong>ESP32 microcontroller</strong>, enabling wireless communication, 
+            compact design, and energy-efficient operation.
+          </p>
+          <p><strong>Tech Stack:</strong> YOLOv10, LLMs, Flask, ESP32, LiDAR, IMU, Python</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-	
+    </div>
+  </div>
+</section><section id="gallery" class="py-5" style="background-color: #0d0d0d;">
+  <div class="container text-center">
+    <h2 class="text-white mb-5">Gallery</h2>
+
+    <div id="galleryCarousel" class="carousel slide mx-auto" data-ride="carousel" data-interval="2000" style="width: 45%;">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#galleryCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#galleryCarousel" data-slide-to="1"></li>
+        <li data-target="#galleryCarousel" data-slide-to="2"></li>
+        <li data-target="#galleryCarousel" data-slide-to="3"></li>
+        <li data-target="#galleryCarousel" data-slide-to="4"></li>
+      </ol>
+
+      <!-- Carousel Inner -->
+      <div class="carousel-inner rounded shadow-lg">
+        <div class="carousel-item active">
+          <img src="images/src1.jpg" class="d-block w-100 rounded-3" alt="Gallery Image 1">
+        </div>
+        <div class="carousel-item">
+          <img src="images/src2.jpg" class="d-block w-100 rounded-3" alt="Gallery Image 2">
+        </div>
+        <div class="carousel-item">
+          <img src="images/src3.jpg" class="d-block w-100 rounded-3" alt="Gallery Image 3">
+        </div>
+        <div class="carousel-item">
+          <img src="images/src4.jpg" class="d-block w-100 rounded-3" alt="Gallery Image 4">
+        </div>
+        <div class="carousel-item">
+          <img src="images/src5.jpg" class="d-block w-100 rounded-3" alt="Gallery Image 5">
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <a class="carousel-control-prev" href="#galleryCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1);"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#galleryCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1);"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="achievements" class="py-5" style="background-color: #121212;">
+  <div class="container">
+    <h2 class="text-center text-white mb-5">Achievements</h2>
+
+    <div class="row g-4 justify-content-center">
+
+      <!-- Achievement 1 -->
+      <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+        <div class="card bg-dark text-white shadow rounded-3 p-4 w-100">
+          <h6 class="text-warning fw-bold mb-2">Hackathons & Awards</h6>
+          <p class="text-muted mb-0">
+            Participated in <strong>5+ National Hackathons</strong> across AI, EdTech, and Cybersecurity domains. 
+            <br>🏆 <strong>Best Poster Presentation</strong> – SRC 2025, Zayed University (Dubai) for innovative AI research work.
+          </p>
+        </div>
+      </div>
+
+      <!-- Achievement 2 -->
+      <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+        <div class="card bg-dark text-white shadow rounded-3 p-4 w-100">
+          <h6 class="text-warning fw-bold mb-2">Domain Certifications</h6>
+          <p class="text-muted mb-0">
+            Earned certifications in <strong>AI, Deep Learning, AWS, Full Stack Development, and DSA</strong> 
+            from leading institutions like <strong>DeepLearning.ai, Rice University, FreeCodeCamp, and Scaler</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Achievement 3 -->
+      <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+        <div class="card bg-dark text-white shadow rounded-3 p-4 w-100">
+          <h6 class="text-warning fw-bold mb-2">Startup & Entrepreneurship</h6>
+          <p class="text-muted mb-0">
+            Selected for <strong>Entrepreneurship Summit 2025</strong> after participating in 
+            <strong>TiE Hyderabad</strong> and <strong>Startup India Summits</strong>. 
+            <br>Actively contributing to <strong>BlueBarrier</strong> as Co-Founder.
+          </p>
+        </div>
+      </div>
+
+      <!-- Achievement 4 -->
+      <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+        <div class="card bg-dark text-white shadow rounded-3 p-4 w-100">
+          <h6 class="text-warning fw-bold mb-2">Professional Experience</h6>
+          <p class="text-muted mb-0">
+            Worked as a <strong>Full Stack Developer Intern</strong> at <strong>LabMentix</strong>, integrating 
+            MongoDB and building responsive React.js–Node.js applications.  
+            <br>Improved component reusability by <strong>35%</strong> through modular design.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 	<section class="ftco-section" id="skills-section">
 		<div class="container">
 			<div class="row justify-content-center pb-5">
@@ -469,7 +750,14 @@
       </div>
     </footer>
     
-  
+  <script>
+   function showProjects(category) {
+    const allCards = document.querySelectorAll(".project-card");
+    const selectedCards = document.querySelectorAll(`.${category}-card`);
+    allCards.forEach(card => card.style.display = "none");
+    selectedCards.forEach(card => card.style.display = "block");
+  }
+</script>
 
   <!-- loader -->
   <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
