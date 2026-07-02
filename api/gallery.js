@@ -123,7 +123,7 @@ export default async function handler(req, res) {
       const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
 
-      let uploadedUrl = null;
+      let uploadedUrl = imageBase64;
       let imageRecord = null;
       let storageMode = 'local';
 
@@ -139,9 +139,8 @@ export default async function handler(req, res) {
           throw new Error('Blob token not configured');
         }
       } catch (blobError) {
-        console.warn('Blob upload unavailable, using local file storage:', blobError.message);
-        const localUpload = await saveImageLocally(buffer, filename);
-        uploadedUrl = localUpload.url;
+        console.warn('Blob upload unavailable, using base64 data URL for local images:', blobError.message);
+        uploadedUrl = imageBase64;
         storageMode = 'local';
       }
 
@@ -178,7 +177,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Missing id' });
       }
 
-      if (url) {
+      if (url && url.startsWith('http')) {
         try {
           await del(url);
         } catch (blobError) {

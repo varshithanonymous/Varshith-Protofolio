@@ -292,6 +292,7 @@
   const secretInput = document.getElementById('secret-input');
   const lockError  = document.getElementById('lock-error');
   const toast      = document.getElementById('toast');
+  let currentGallery = [];
 
   // ── CHECK EXISTING SESSION ──
   if (sessionStorage.getItem('admin_auth') === '1') unlock();
@@ -353,8 +354,6 @@
     phone: '+91 9502901416',
     resume: 'https://drive.google.com/file/d/1_qFPc1AvQYmOMyYjRYGZ9JDvEVhzSaQL/view?usp=sharing'
   };
-
-  let currentGallery = [];
 
   // ── LOAD ALL ──
   async function loadAll() {
