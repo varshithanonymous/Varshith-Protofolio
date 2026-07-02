@@ -37,6 +37,31 @@ async function writeLocalGallery(items) {
   await fs.writeFile(galleryStorePath, JSON.stringify(items, null, 2), 'utf8');
 }
 
+function getImageMimeType(filename) {
+  const ext = path.extname(filename || '').slice(1).toLowerCase();
+  if (ext === 'jpg') return 'image/jpeg';
+  if (ext === 'svg') return 'image/svg+xml';
+  if (ext === 'webp') return 'image/webp';
+  if (ext === 'gif') return 'image/gif';
+  return `image/${ext || 'png'}`;
+}
+
+async function normalizeGalleryItem(item) {
+  if (item?.url?.startsWith('/images/uploads/')) {
+    const fileName = path.basename(item.url);
+    const filePath = path.join(uploadDir, fileName);
+    try {
+      const buffer = await fs.readFile(filePath);
+      const mime = getImageMimeType(fileName);
+      return { ...item, url: `data:${mime};base64,${buffer.toString('base64')}` };
+    } catch (error) {
+      console.warn('Failed to normalize local gallery image:', error.message);
+      return item;
+    }
+  }
+  return item;
+}
+
 function sanitizeFilename(filename) {
   const ext = path.extname(filename || 'image.png');
   const base = path.basename(filename || 'image', ext).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80) || 'image';
@@ -105,7 +130,8 @@ export default async function handler(req, res) {
       }
 
       const rows = await readLocalGallery();
-      return res.status(200).json({ success: true, gallery: rows, storage: 'local' });
+      const normalized = await Promise.all(rows.map(normalizeGalleryItem));
+      return res.status(200).json({ success: true, gallery: normalized, storage: 'local' });
     } catch (error) {
       console.error('Failed to fetch gallery:', error);
       return res.status(500).json({ success: false, error: 'Gallery fetch error' });
