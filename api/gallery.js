@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 import { put, del } from '@vercel/blob';
 
 // Ensure the function can accept larger payloads (max limit for Serverless Functions is 4.5MB)
@@ -11,9 +11,11 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
+
   if (req.method === 'GET') {
     try {
-      const { rows } = await sql`SELECT * FROM gallery ORDER BY created_at DESC;`;
+      const rows = await sql`SELECT * FROM gallery ORDER BY created_at DESC;`;
       return res.status(200).json({ success: true, gallery: rows });
     } catch (error) {
       console.error('Failed to fetch gallery:', error);
@@ -40,7 +42,7 @@ export default async function handler(req, res) {
       });
 
       // Insert the details into Postgres
-      const { rows } = await sql`
+      const rows = await sql`
         INSERT INTO gallery (url, label, category)
         VALUES (${blob.url}, ${label}, ${cat})
         RETURNING *;

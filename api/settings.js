@@ -1,9 +1,11 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
+  const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
+
   if (req.method === 'GET') {
     try {
-      const { rows } = await sql`SELECT * FROM settings;`;
+      const rows = await sql`SELECT * FROM settings;`;
       
       // Convert rows array [{key: 'github', value: 'url'}, ...] into an object { github: 'url', ... }
       const settings = rows.reduce((acc, row) => {

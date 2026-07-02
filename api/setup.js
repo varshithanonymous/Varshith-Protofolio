@@ -1,6 +1,7 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
+  const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
   try {
     // Create the gallery table
     await sql`
