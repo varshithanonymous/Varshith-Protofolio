@@ -366,12 +366,28 @@
   async function fetchGallery() {
     try {
       const res = await fetch(GALLERY_API);
-      const data = await res.json();
-      if (data.success) {
-        currentGallery = data.gallery;
-        renderGallery();
+      const text = await res.text();
+      let data = null;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { success: false, error: text || 'Unexpected server response' };
       }
-    } catch (e) { console.error('Error fetching gallery:', e); }
+
+      if (data.success) {
+        currentGallery = Array.isArray(data.gallery) ? data.gallery : [];
+        renderGallery();
+      } else {
+        currentGallery = [];
+        renderGallery();
+        console.error('Gallery fetch failed:', data.error);
+      }
+    } catch (e) {
+      currentGallery = [];
+      renderGallery();
+      console.error('Error fetching gallery:', e);
+    }
   }
 
   const imgFile = document.getElementById('img-file');
@@ -414,7 +430,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ imageBase64: base64, filename: file.name, label, cat })
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data = null;
+
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { success: false, error: text || 'Unexpected server response' };
+        }
         
         if (data.success) {
           showToast('✓ Image uploaded successfully');

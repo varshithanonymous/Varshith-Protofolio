@@ -1,12 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 import { put, del } from '@vercel/blob';
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const galleryStorePath = path.join(__dirname, '..', 'images', 'gallery-store.json');
-const uploadDir = path.join(__dirname, '..', 'images', 'uploads');
+const galleryStorePath = path.join(os.tmpdir(), 'portfolio-gallery-store.json');
+const uploadDir = path.join(os.tmpdir(), 'portfolio-gallery-uploads');
 
 // Ensure the function can accept larger payloads (max limit for Serverless Functions is 4.5MB)
 export const config = {
