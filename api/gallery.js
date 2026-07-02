@@ -1,5 +1,12 @@
 import { neon } from '@neondatabase/serverless';
 import { put, del } from '@vercel/blob';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const galleryStorePath = path.join(__dirname, '..', 'images', 'gallery-store.json');
+const uploadDir = path.join(__dirname, '..', 'images', 'uploads');
 
 // Ensure the function can accept larger payloads (max limit for Serverless Functions is 4.5MB)
 export const config = {
@@ -10,16 +17,99 @@ export const config = {
   },
 };
 
+async function ensureLocalStore() {
+  await fs.mkdir(uploadDir, { recursive: true });
+
+  try {
+    await fs.access(galleryStorePath);
+  } catch {
+    await fs.writeFile(galleryStorePath, '[]', 'utf8');
+  }
+}
+
+async function readLocalGallery() {
+  await ensureLocalStore();
+  const raw = await fs.readFile(galleryStorePath, 'utf8');
+  return JSON.parse(raw);
+}
+
+async function writeLocalGallery(items) {
+  await ensureLocalStore();
+  await fs.writeFile(galleryStorePath, JSON.stringify(items, null, 2), 'utf8');
+}
+
+function sanitizeFilename(filename) {
+  const ext = path.extname(filename || 'image.png');
+  const base = path.basename(filename || 'image', ext).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80) || 'image';
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${base}${ext}`;
+}
+
+async function saveImageLocally(buffer, filename) {
+  await ensureLocalStore();
+  const safeName = sanitizeFilename(filename);
+  const filePath = path.join(uploadDir, safeName);
+  await fs.writeFile(filePath, buffer);
+  return { url: `/images/uploads/${safeName}` };
+}
+
+async function saveGalleryEntryLocally({ url, label, cat }) {
+  const items = await readLocalGallery();
+  const record = {
+    id: Date.now(),
+    url,
+    label,
+    category: cat,
+    created_at: new Date().toISOString(),
+  };
+
+  items.unshift(record);
+  await writeLocalGallery(items);
+  return record;
+}
+
+async function deleteGalleryEntryLocally(id) {
+  const items = await readLocalGallery();
+  const target = items.find((item) => String(item.id) === String(id));
+
+  if (!target) {
+    return false;
+  }
+
+  if (target.url && target.url.startsWith('/images/uploads/')) {
+    const fileName = path.basename(target.url);
+    const filePath = path.join(uploadDir, fileName);
+    try {
+      await fs.unlink(filePath);
+    } catch (error) {
+      console.warn('Failed to delete local image file:', error.message);
+    }
+  }
+
+  const updated = items.filter((item) => String(item.id) !== String(id));
+  await writeLocalGallery(updated);
+  return true;
+}
+
 export default async function handler(req, res) {
-  const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  const sql = connectionString ? neon(connectionString) : null;
 
   if (req.method === 'GET') {
     try {
-      const rows = await sql`SELECT * FROM gallery ORDER BY created_at DESC;`;
-      return res.status(200).json({ success: true, gallery: rows });
+      if (sql) {
+        try {
+          const rows = await sql`SELECT * FROM gallery ORDER BY created_at DESC;`;
+          return res.status(200).json({ success: true, gallery: rows, storage: 'database' });
+        } catch (dbError) {
+          console.warn('Database lookup failed, using local gallery store:', dbError.message);
+        }
+      }
+
+      const rows = await readLocalGallery();
+      return res.status(200).json({ success: true, gallery: rows, storage: 'local' });
     } catch (error) {
       console.error('Failed to fetch gallery:', error);
-      return res.status(500).json({ success: false, error: 'Database error' });
+      return res.status(500).json({ success: false, error: 'Gallery fetch error' });
     }
   }
 
@@ -31,27 +121,53 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Missing required fields' });
       }
 
-      // Convert Base64 back to a Buffer
       const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
 
-      // Upload the buffer to Vercel Blob
-      const blob = await put(filename, buffer, {
-        access: 'public',
-        addRandomSuffix: true
-      });
+      let uploadedUrl = null;
+      let imageRecord = null;
+      let storageMode = 'local';
 
-      // Insert the details into Postgres
-      const rows = await sql`
-        INSERT INTO gallery (url, label, category)
-        VALUES (${blob.url}, ${label}, ${cat})
-        RETURNING *;
-      `;
+      try {
+        if (process.env.BLOB_READ_WRITE_TOKEN) {
+          const blob = await put(filename, buffer, {
+            access: 'public',
+            addRandomSuffix: true,
+          });
+          uploadedUrl = blob.url;
+          storageMode = 'blob';
+        } else {
+          throw new Error('Blob token not configured');
+        }
+      } catch (blobError) {
+        console.warn('Blob upload unavailable, using local file storage:', blobError.message);
+        const localUpload = await saveImageLocally(buffer, filename);
+        uploadedUrl = localUpload.url;
+        storageMode = 'local';
+      }
 
-      return res.status(200).json({ success: true, image: rows[0] });
+      if (sql) {
+        try {
+          const rows = await sql`
+            INSERT INTO gallery (url, label, category)
+            VALUES (${uploadedUrl}, ${label}, ${cat})
+            RETURNING *;
+          `;
+          imageRecord = rows[0];
+          storageMode = 'database';
+        } catch (dbError) {
+          console.warn('Database insert failed, storing image locally:', dbError.message);
+          imageRecord = await saveGalleryEntryLocally({ url: uploadedUrl, label, cat });
+          storageMode = 'local';
+        }
+      } else {
+        imageRecord = await saveGalleryEntryLocally({ url: uploadedUrl, label, cat });
+      }
+
+      return res.status(200).json({ success: true, image: imageRecord, storage: storageMode });
     } catch (error) {
       console.error('Failed to upload image:', error);
-      return res.status(500).json({ success: false, error: 'Upload or database error' });
+      return res.status(500).json({ success: false, error: 'Upload failed' });
     }
   }
 
@@ -63,22 +179,29 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Missing id' });
       }
 
-      // Delete from Vercel Blob if a URL is provided
       if (url) {
         try {
           await del(url);
         } catch (blobError) {
-          console.error('Failed to delete blob (it may have already been deleted):', blobError);
+          console.warn('Failed to delete blob (it may have already been deleted):', blobError.message);
         }
       }
 
-      // Delete from Postgres
-      await sql`DELETE FROM gallery WHERE id = ${id}`;
+      if (sql) {
+        try {
+          await sql`DELETE FROM gallery WHERE id = ${id}`;
+        } catch (dbError) {
+          console.warn('Database delete failed, removing local gallery entry:', dbError.message);
+          await deleteGalleryEntryLocally(id);
+        }
+      } else {
+        await deleteGalleryEntryLocally(id);
+      }
 
       return res.status(200).json({ success: true, message: 'Deleted successfully' });
     } catch (error) {
       console.error('Failed to delete image:', error);
-      return res.status(500).json({ success: false, error: 'Database error' });
+      return res.status(500).json({ success: false, error: 'Delete failed' });
     }
   }
 
