@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — Varshith Portfolio</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #00F5FF;
+      --accent: #7C3AED;
+      --bg: #111111;
+      --bg2: #0a0a0a;
+      --bg3: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+      --white: #ffffff;
+      --gray: #888888;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); }
+
+    /* ── LOCK SCREEN ── */
+    #lock-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg2);
+    }
+    #lock-screen.hidden { display: none; }
+    .lock-card {
+      width: 100%; max-width: 380px; padding: 48px 40px;
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .lock-icon { font-size: 2.5rem; }
+    .lock-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--white); }
+    .lock-sub { font-size: 0.82rem; color: var(--gray); text-align: center; }
+    .lock-input {
+      width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 10px; color: var(--white);
+      font-size: 1rem; letter-spacing: 0.1em; text-align: center; outline: none;
+      transition: border 0.25s;
+    }
+    .lock-input:focus { border-color: var(--primary); }
+    .lock-btn {
+      width: 100%; padding: 13px; background: var(--primary); color: #111;
+      font-weight: 700; font-size: 0.9rem; border: none; border-radius: 10px;
+      cursor: pointer; transition: opacity 0.25s;
+    }
+    .lock-btn:hover { opacity: 0.85; }
+    .lock-error { font-size: 0.8rem; color: #f87171; display: none; }
+    .lock-error.show { display: block; }
+
+    /* ── ADMIN LAYOUT ── */
+    #admin-app { display: none; min-height: 100vh; }
+    #admin-app.visible { display: flex; }
+    .admin-sidebar {
+      width: 220px; flex-shrink: 0; background: var(--bg2);
+      border-right: 1px solid var(--border); padding: 32px 16px;
+      display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar-logo { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--primary); padding: 8px 12px; margin-bottom: 16px; }
+    .sidebar-logo span { color: var(--white); }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      border-radius: 10px; color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+    .sidebar-link.active { color: var(--primary); background: rgba(0,245,255,0.08); }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .sidebar-logout { margin-top: auto; color: #f87171; }
+    .sidebar-logout:hover { background: rgba(248,113,113,0.08); color: #f87171; }
+
+    .admin-main { flex: 1; padding: 40px; overflow-y: auto; max-width: 900px; }
+    .admin-header { margin-bottom: 36px; }
+    .admin-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--white); }
+    .admin-subtitle { font-size: 0.85rem; color: var(--gray); margin-top: 4px; }
+
+    /* ── PANELS ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 28px;
+      margin-bottom: 20px;
+    }
+    .card-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); margin-bottom: 18px; font-weight: 600; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-row.single { grid-template-columns: 1fr; }
+    label { display: block; font-size: 0.75rem; color: var(--gray); margin-bottom: 6px; font-weight: 500; }
+    input[type="text"], input[type="url"], input[type="password"], select, textarea {
+      width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 8px; color: var(--white);
+      font-size: 0.88rem; outline: none; transition: border 0.25s; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    select option { background: #222; }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn {
+      padding: 10px 22px; border-radius: 8px; font-size: 0.83rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s; border: none; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-add { background: var(--primary); color: #111; }
+    .btn-add:hover { opacity: 0.85; }
+    .btn-save { background: rgba(0,245,255,0.1); color: var(--primary); border: 1px solid rgba(0,245,255,0.3); }
+    .btn-save:hover { background: rgba(0,245,255,0.18); }
+    .btn-danger { background: rgba(248,113,113,0.08); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+    .btn-danger:hover { background: rgba(248,113,113,0.15); }
+    .btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+
+    /* ── GALLERY LIST ── */
+    .gallery-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .gallery-list-item {
+      display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .gallery-thumb { width: 60px; height: 44px; object-fit: cover; border-radius: 6px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .gallery-thumb-placeholder { width: 60px; height: 44px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .gallery-item-info { flex: 1; }
+    .gallery-item-label { font-size: 0.85rem; font-weight: 500; color: var(--white); }
+    .gallery-item-url { font-size: 0.72rem; color: var(--gray); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+    .gallery-item-cat { font-size: 0.68rem; padding: 2px 8px; background: rgba(0,245,255,0.08); border: 1px solid rgba(0,245,255,0.2); color: var(--primary); border-radius: 4px; }
+
+    /* ── LINKS LIST ── */
+    .link-item { display: grid; grid-template-columns: 120px 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .link-label { font-size: 0.8rem; font-weight: 600; color: var(--gray); text-align: right; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 30px; right: 30px; z-index: 99999;
+      background: rgba(0,245,255,0.12); border: 1px solid rgba(0,245,255,0.35);
+      color: var(--primary); padding: 12px 22px; border-radius: 10px; font-size: 0.85rem;
+      font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── LIVE PREVIEW ── */
+    .preview-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); }
+    .section-sep { height: 1px; background: var(--border); margin: 24px 0; }
+    .badge-preview { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: rgba(0,245,255,0.08); color: var(--primary); border: 1px solid rgba(0,245,255,0.2); }
+  </style>
+</head>
+<body>
+
+<!-- ────── LOCK SCREEN ────── -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <span class="lock-icon">🔐</span>
+    <div class="lock-title">Admin Access</div>
+    <p class="lock-sub">Enter your secret code to access the portfolio admin panel.</p>
+    <input type="password" id="secret-input" class="lock-input" placeholder="Secret code" autocomplete="off" />
+    <div class="lock-error" id="lock-error">Incorrect code. Try again.</div>
+    <button class="lock-btn" id="unlock-btn">Unlock →</button>
+  </div>
+</div>
+
+<!-- ────── ADMIN APP ────── -->
+<div id="admin-app">
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">V.<span>AI</span> Admin</div>
+    <button class="sidebar-link active" data-panel="gallery">🖼 Gallery</button>
+    <button class="sidebar-link" data-panel="links">🔗 Social Links</button>
+    <button class="sidebar-link" data-panel="resume">📄 Resume</button>
+    <div class="sidebar-divider"></div>
+    <button class="sidebar-link" id="view-site-btn">↗ View Site</button>
+    <button class="sidebar-link sidebar-logout" id="logout-btn">🚪 Logout</button>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- ── GALLERY PANEL ── -->
+    <div class="panel active" id="panel-gallery">
+      <div class="admin-header">
+        <div class="admin-title">Gallery Manager</div>
+        <div class="admin-subtitle">Add images with labels. They appear instantly in the portfolio gallery.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Add New Image</div>
+        <div class="form-row">
+          <div>
+            <label>Image File</label>
+            <input type="file" id="img-file" accept="image/*" />
+          </div>
+          <div>
+            <label>Label / Caption</label>
+            <input type="text" id="img-label" placeholder="e.g. SRC 2025, Dubai" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Category</label>
+            <select id="img-cat">
+              <option value="research">Research</option>
+              <option value="achievements">Achievements</option>
+              <option value="events">Events</option>
+              <option value="personal">Personal</option>
+            </select>
+          </div>
+          <div>
+            <label>Preview</label>
+            <img id="img-preview" class="preview-img" src="" alt="" style="display:none;" />
+          </div>
+        </div>
+        <button class="btn btn-add" id="add-img-btn">+ Add Image</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Current Gallery Images <span id="img-count" class="badge-preview">0</span></div>
+        <div class="gallery-list" id="gallery-list">
+          <p style="color:var(--gray);font-size:0.85rem;">No custom images added yet.</p>
+        </div>
+        <div class="section-sep"></div>
+        <button class="btn btn-danger btn-sm" id="clear-gallery-btn">Clear All Custom Images</button>
+      </div>
+    </div>
+
+    <!-- ── LINKS PANEL ── -->
+    <div class="panel" id="panel-links">
+      <div class="admin-header">
+        <div class="admin-title">Social Links</div>
+        <div class="admin-subtitle">Update your social links. Changes apply to the live portfolio instantly.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Contact & Social</div>
+        <div class="link-item">
+          <span class="link-label">GitHub</span>
+          <input type="url" id="link-github" placeholder="https://github.com/yourhandle" />
+          <button class="btn btn-save btn-sm" data-key="github">Save</button>
+        </div>
+        <div class="link-item">
+          <span class="link-label">LinkedIn</span>
+          <input type="url" id="link-linkedin" placeholder="https://linkedin.com/in/yourhandle" />
+          <button class="btn btn-save btn-sm" data-key="linkedin">Save</button>
+        </div>
+        <div class="link-item">
+          <span class="link-label">WhatsApp</span>
+          <input type="text" id="link-whatsapp" placeholder="91XXXXXXXXXX (country code + number)" />
+          <button class="btn btn-save btn-sm" data-key="whatsapp">Save</button>
+        </div>
+        <div class="link-item">
+          <span class="link-label">Instagram</span>
+          <input type="url" id="link-instagram" placeholder="https://instagram.com/yourhandle" />
+          <button class="btn btn-save btn-sm" data-key="instagram">Save</button>
+        </div>
+        <div class="link-item">
+          <span class="link-label">Email</span>
+          <input type="text" id="link-email" placeholder="you@email.com" />
+          <button class="btn btn-save btn-sm" data-key="email">Save</button>
+        </div>
+        <div class="link-item">
+          <span class="link-label">Phone</span>
+          <input type="text" id="link-phone" placeholder="+91 9502901416" />
+          <button class="btn btn-save btn-sm" data-key="phone">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESUME PANEL ── -->
+    <div class="panel" id="panel-resume">
+      <div class="admin-header">
+        <div class="admin-title">Resume</div>
+        <div class="admin-subtitle">Update your resume download link. Paste a Google Drive or direct PDF link.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Resume Download Link</div>
+        <div class="form-row single">
+          <div>
+            <label>Resume URL</label>
+            <input type="url" id="resume-url" placeholder="https://drive.google.com/file/d/..." />
+          </div>
+        </div>
+        <button class="btn btn-add" id="save-resume-btn">Save Resume Link</button>
+        <p style="margin-top:12px;font-size:0.78rem;color:var(--gray);">Current: <span id="current-resume" style="color:var(--primary);">Loading...</span></p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast">✓ Saved</div>
+
+<script>
+  // ── SECRET CODE (change this to whatever you want) ──
+  const SECRET = 'varshith@admin';
+
+  const lockScreen = document.getElementById('lock-screen');
+  const adminApp   = document.getElementById('admin-app');
+  const secretInput = document.getElementById('secret-input');
+  const lockError  = document.getElementById('lock-error');
+  const toast      = document.getElementById('toast');
+
+  // ── CHECK EXISTING SESSION ──
+  if (sessionStorage.getItem('admin_auth') === '1') unlock();
+
+  function unlock() {
+    lockScreen.classList.add('hidden');
+    adminApp.classList.add('visible');
+    sessionStorage.setItem('admin_auth', '1');
+    loadAll();
+  }
+
+  document.getElementById('unlock-btn').addEventListener('click', () => {
+    if (secretInput.value === SECRET) {
+      lockError.classList.remove('show');
+      unlock();
+    } else {
+      lockError.classList.add('show');
+      secretInput.value = '';
+      secretInput.focus();
+    }
+  });
+  secretInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('unlock-btn').click(); });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem('admin_auth');
+    location.reload();
+  });
+
+  document.getElementById('view-site-btn').addEventListener('click', () => window.open('/', '_blank'));
+
+  // ── PANEL NAVIGATION ──
+  document.querySelectorAll('[data-panel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-panel]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ── TOAST ──
+  function showToast(msg = '✓ Saved') {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ── API ENDPOINTS ──
+  const GALLERY_API = '/api/gallery';
+  const SETTINGS_API = '/api/settings';
+
+  // ── DEFAULTS (Used if API fails or is empty) ──
+  const defaultLinks = {
+    github: 'https://github.com/varshithanonymous',
+    linkedin: 'https://www.linkedin.com/in/varshithrallabandi',
+    whatsapp: '919502901416',
+    instagram: 'https://www.instagram.com/varshi_th__',
+    email: 'varshithrallabandi31@gmail.com',
+    phone: '+91 9502901416',
+    resume: 'https://drive.google.com/file/d/1_qFPc1AvQYmOMyYjRYGZ9JDvEVhzSaQL/view?usp=sharing'
+  };
+
+  let currentGallery = [];
+
+  // ── LOAD ALL ──
+  async function loadAll() {
+    await fetchGallery();
+    await fetchSettings();
+  }
+
+  // ─── GALLERY API ───
+  async function fetchGallery() {
+    try {
+      const res = await fetch(GALLERY_API);
+      const data = await res.json();
+      if (data.success) {
+        currentGallery = data.gallery;
+        renderGallery();
+      }
+    } catch (e) { console.error('Error fetching gallery:', e); }
+  }
+
+  const imgFile = document.getElementById('img-file');
+  const imgLabel = document.getElementById('img-label');
+  const imgCat = document.getElementById('img-cat');
+  const imgPreview = document.getElementById('img-preview');
+
+  imgFile.addEventListener('change', () => {
+    const file = imgFile.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      imgPreview.style.display = 'none';
+    }
+  });
+
+  document.getElementById('add-img-btn').addEventListener('click', () => {
+    const file = imgFile.files[0];
+    const label = imgLabel.value.trim();
+    const cat = imgCat.value;
+    
+    if (!file || !label) { showToast('⚠ Select a file and enter a label'); return; }
+    
+    const btn = document.getElementById('add-img-btn');
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result;
+      
+      try {
+        const res = await fetch(GALLERY_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: base64, filename: file.name, label, cat })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('✓ Image uploaded successfully');
+          imgFile.value = ''; imgLabel.value = ''; imgPreview.style.display = 'none';
+          await fetchGallery();
+        } else {
+          showToast('⚠ Error: ' + data.error);
+        }
+      } catch (err) {
+        showToast('⚠ Upload failed');
+        console.error(err);
+      } finally {
+        btn.textContent = '+ Add Image';
+        btn.disabled = false;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function renderGallery() {
+    const list = document.getElementById('gallery-list');
+    document.getElementById('img-count').textContent = currentGallery.length;
+
+    if (!currentGallery.length) {
+      list.innerHTML = '<p style="color:var(--gray);font-size:0.85rem;">No custom images added yet.</p>';
+      return;
+    }
+    list.innerHTML = currentGallery.map(item => `
+      <div class="gallery-list-item">
+        <img class="gallery-thumb" src="${item.url}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex';" />
+        <div class="gallery-thumb-placeholder" style="display:none;">🖼</div>
+        <div class="gallery-item-info">
+          <div class="gallery-item-label">${item.label}</div>
+          <div class="gallery-item-url">${item.url}</div>
+        </div>
+        <span class="gallery-item-cat">${item.category}</span>
+        <button class="btn btn-danger btn-sm" onclick="removeGalleryItem(${item.id}, '${item.url}')">✕</button>
+      </div>
+    `).join('');
+  }
+
+  window.removeGalleryItem = async function(id, url) {
+    if (!confirm('Delete this image?')) return;
+    try {
+      const res = await fetch(GALLERY_API, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, url })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✓ Image deleted');
+        await fetchGallery();
+      }
+    } catch (e) {
+      showToast('⚠ Delete failed');
+    }
+  };
+
+  // ─── SETTINGS API ───
+  async function fetchSettings() {
+    try {
+      const res = await fetch(SETTINGS_API);
+      const data = await res.json();
+      const settings = data.success ? Object.assign({}, defaultLinks, data.settings) : defaultLinks;
+      
+      document.getElementById('link-github').value    = settings.github || '';
+      document.getElementById('link-linkedin').value  = settings.linkedin || '';
+      document.getElementById('link-whatsapp').value  = settings.whatsapp || '';
+      document.getElementById('link-instagram').value = settings.instagram || '';
+      document.getElementById('link-email').value     = settings.email || '';
+      document.getElementById('link-phone').value     = settings.phone || '';
+      
+      const resumeUrl = settings.resume || defaultLinks.resume;
+      document.getElementById('resume-url').value = resumeUrl;
+      document.getElementById('current-resume').textContent = resumeUrl.length > 60 ? resumeUrl.substring(0,60)+'...' : resumeUrl;
+    } catch (e) {
+      console.error('Error fetching settings:', e);
+      // Fallback
+      document.getElementById('link-github').value = defaultLinks.github;
+      document.getElementById('resume-url').value = defaultLinks.resume;
+    }
+  }
+
+  async function updateSetting(key, value) {
+    try {
+      const res = await fetch(SETTINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`✓ ${key.charAt(0).toUpperCase() + key.slice(1)} saved`);
+      } else {
+        showToast(`⚠ Error saving ${key}`);
+      }
+    } catch (e) {
+      showToast('⚠ Save failed');
+    }
+  }
+
+  document.querySelectorAll('[data-key]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      const val = document.getElementById('link-' + key).value.trim();
+      updateSetting(key, val);
+    });
+  });
+
+  document.getElementById('save-resume-btn').addEventListener('click', () => {
+    const url = document.getElementById('resume-url').value.trim();
+    if (!url) return;
+    updateSetting('resume', url).then(() => {
+      document.getElementById('current-resume').textContent = url.length > 60 ? url.substring(0,60)+'...' : url;
+    });
+  });
+</script>
+</body>
+</html>
